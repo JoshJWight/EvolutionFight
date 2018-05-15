@@ -129,7 +129,6 @@ public class Creature implements Comparable{
 	}
 	
 
-	@Override
 	public int compareTo(Object o) {
 		if(!(o instanceof Creature)) {
 			return 0;

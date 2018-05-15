@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 
 public class GUI extends JFrame{
 	GameController controller;
-	public GUI(GameController controller){
+	public GUI(final GameController controller){
 		this.controller = controller;
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {

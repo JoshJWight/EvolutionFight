@@ -357,7 +357,6 @@ public class NeatNet implements Comparable<NeatNet> {
 		}
 	}
 
-	@Override
 	public int compareTo(NeatNet other) {
 		return fitness - other.fitness;
 	}

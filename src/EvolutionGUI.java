@@ -14,7 +14,7 @@ public class EvolutionGUI extends JFrame{
 	private JTextField saveField;
 	private JTextField readField;
 	
-	public EvolutionGUI(EvolutionController controller){
+	public EvolutionGUI(final EvolutionController controller){
 		this.controller = controller;
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
