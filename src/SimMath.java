@@ -21,6 +21,10 @@ public class SimMath {
 		return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
 	}
 	
+	public static double euclideanDist(Point p1, Point p2) {
+		return euclideanDist(p1.x, p1.y, p2.x, p2.y);
+	}
+	
 	public static boolean rayTouchesCircle(double rx, double ry, double ra, double cx, double cy, double cr) {
 		double ca = angle(rx, ry, cx, cy);
 		double wa = Math.atan2(cr, euclideanDist(rx, ry, cx, cy));
