@@ -282,6 +282,7 @@ public class NeatNet implements Comparable<NeatNet> {
 		return mutations;
 	}
 	
+	//Preferably input should be normalized
 	public double[] update(double input[]){
 		for(int i=0; i<inputs; i++){
 			nodes.get(i).value = input[i];

@@ -11,15 +11,15 @@ public class GameController {
 	public static final int ARENA_HEIGHT = 900;
 	public static final int ROUND_TIME = 500;
 	
-	public ArrayList<Creature> creatures;
+	public ArrayList<Fighter> creatures;
 	public ArrayList<Bullet> bullets;
 	public boolean display;
 	private GUI gui;
 	
 	private boolean killMade;
 	
-	public GameController(Creature c1, Creature c2) {
-		creatures = new ArrayList<Creature>();
+	public GameController(Fighter c1, Fighter c2) {
+		creatures = new ArrayList<Fighter>();
 		bullets = new ArrayList<Bullet>();
 		
 		Random rand = new Random();
@@ -68,11 +68,11 @@ public class GameController {
 	}
 	
 	public void tick(){
-		for(Creature c: creatures) {
+		for(Fighter c: creatures) {
 	
 			c.update();
 			
-			//snap creature position to stay within box
+			//snap Fighter position to stay within box
 			if(c.x < CREATURE_RADIUS) {
 				c.x = CREATURE_RADIUS;
 			}
@@ -90,7 +90,7 @@ public class GameController {
 			c.leftSensor = false;
 			c.rightSensor = false;
 			c.distToOther = 0;
-			for(Creature other: creatures) {
+			for(Fighter other: creatures) {
 				if(other !=c) {
 					if(SimMath.euclideanDist(c.x, c.y, other.x, other.y) < CREATURE_RADIUS * 2){
 						c.collideFrames += 1;
@@ -131,7 +131,7 @@ public class GameController {
 				bi.remove();
 				continue;
 			}
-			for(Creature c: creatures) {
+			for(Fighter c: creatures) {
 				if(c!= b.owner && SimMath.euclideanDist(b.x, b.y, c.x, c.y) < BULLET_RADIUS + CREATURE_RADIUS){
 					b.owner.hits += 1;
 					c.hitsTaken += 1;
@@ -145,7 +145,7 @@ public class GameController {
 		//TODO collision checking etc
 	}
 	
-	private double distToWall(Creature c){
+	private double distToWall(Fighter c){
 		double atl = SimMath.angle(c.x, c.y, 0, 0);
 		double atr = SimMath.angle(c.x, c.y, ARENA_WIDTH, 0);
 		double abl = SimMath.angle(c.x, c.y, 0, ARENA_HEIGHT);

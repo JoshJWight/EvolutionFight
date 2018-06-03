@@ -8,11 +8,13 @@ import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 
 
-public class SlingshotGUI extends JFrame implements KeyListener{
+public class SlingshotGUI extends JFrame{ //implements KeyListener{
+	
+	public static final boolean MANUAL_ENABLED = false;
 	
 	SlingshotController controller;
 	public SlingshotGUI(final SlingshotController controller){
-		this.addKeyListener(this);
+		//this.addKeyListener(this);
 		this.controller = controller;
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
@@ -31,7 +33,7 @@ public class SlingshotGUI extends JFrame implements KeyListener{
 	private Point findTangentPoint(Point a, Point b, Point c){
 		double dist = SimMath.euclideanDist(a, b);
 		double r = SlingshotController.BALL_RADIUS;
-		if(dist==0){dist=0.0000001;}
+		if(dist==0){return b;}//Don't draw if they're overlapping
 		double theta = Math.asin(r/dist);
 		double len = Math.sqrt((dist * dist) - (r * r));
 		double ang = SimMath.angle(b.x, b.y, a.x, a.y);
@@ -49,11 +51,11 @@ public class SlingshotGUI extends JFrame implements KeyListener{
 		g.setColor(Color.black);
 		g.fillRect(0, 0, SlingshotController.SCREEN_WIDTH, SlingshotController.SCREEN_HEIGHT);
 		
-		Point s = new Point(SlingshotController.SLINGSHOT_X, SlingshotController.SLINGSHOT_Y);
+		Point s = new Point((int)SlingshotController.SLINGSHOT_X, (int)SlingshotController.SLINGSHOT_Y);
 		Point b = new Point((int)controller.ballX, (int)controller.ballY);
 		Point p1 = new Point(s.x, s.y + 100);
 		Point p2 = new Point(s.x, s.y - 100);
-		Point h = new Point((int)controller.handX, (int)controller.handY);
+		Point h = new Point((int)controller.slinger.x, (int)controller.slinger.y);
 		Point t = new Point((int)controller.targetX, (int)controller.targetY);
 		//Draw the ball
 		int br = SlingshotController.BALL_RADIUS;
@@ -71,8 +73,13 @@ public class SlingshotGUI extends JFrame implements KeyListener{
 		} else {
 			Point t1 = findTangentPoint(b, p1, p2);
 			Point t2 = findTangentPoint(b, p2, p1);
-			g.drawLine(p1.x, p1.y, t1.x, t1.y);
-			g.drawLine(p2.x, p2.y, t2.x, t2.y);
+			//hopefully fixes the glitchy lines when touching the peg
+			if(!(SimMath.euclideanDist(p1, t1) > 500)){
+				g.drawLine(p1.x, p1.y, t1.x, t1.y);
+			}
+			if(!(SimMath.euclideanDist(p2, t2) > 500)){
+				g.drawLine(p2.x, p2.y, t2.x, t2.y);
+			}
 		}
 		//Draw the target
 		int tr = SlingshotController.TARGET_RADIUS;
@@ -81,7 +88,7 @@ public class SlingshotGUI extends JFrame implements KeyListener{
 		
 		//Draw the hand
 		int hr = 10;
-		if(controller.handGrabbing){
+		if(controller.slinger.grabbing){
 			g.setColor(Color.GREEN);
 		} else {
 			g.setColor(Color.CYAN);
@@ -91,7 +98,11 @@ public class SlingshotGUI extends JFrame implements KeyListener{
 		graphics.drawImage(image, 0, 0, null);
 	}
 
-	public void keyPressed(KeyEvent e) {
+	/*public void keyPressed(KeyEvent e) {
+		if(!MANUAL_ENABLED){
+			return;
+		}
+		
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
 			controller.handGrabbing = true;
@@ -114,6 +125,10 @@ public class SlingshotGUI extends JFrame implements KeyListener{
 	}
 
 	public void keyReleased(KeyEvent e) {
+		if(!MANUAL_ENABLED){
+			return;
+		}
+		
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
 			controller.handGrabbing = false;
@@ -138,5 +153,5 @@ public class SlingshotGUI extends JFrame implements KeyListener{
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 		
-	}
+	}*/
 }

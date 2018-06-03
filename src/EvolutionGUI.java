@@ -25,7 +25,7 @@ public class EvolutionGUI extends JFrame{
 		this.setSize(500, 500);
 		
 		
-		this.setLayout(new GridLayout(4, 2));
+		this.setLayout(new GridLayout(5, 2));
 		
 		JButton genButton = new JButton("Generate");
 		genButton.addActionListener(new ActionListener(){
@@ -113,6 +113,19 @@ public class EvolutionGUI extends JFrame{
 		
 		readField = new JTextField();
 		this.add(readField,3,1);
+		
+		JButton bestButton = new JButton("Show Best");
+		bestButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				new Thread(){
+					public void run() {
+						controller.showBest();
+					}
+				}.start();
+			}
+		});
+		this.add(bestButton,4,0);
 		
 		this.setVisible(true);
 	}

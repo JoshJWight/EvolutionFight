@@ -26,7 +26,7 @@ public class GUI extends JFrame{
 		g.setColor(Color.black);
 		g.fillRect(0, 0, controller.ARENA_WIDTH, controller.ARENA_HEIGHT);
 		for(int i=0; i<controller.creatures.size(); i++) {
-			Creature c = controller.creatures.get(i);
+			Fighter c = controller.creatures.get(i);
 			
 			//draw body
 			g.setColor(c.color);

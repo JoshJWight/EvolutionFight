@@ -16,13 +16,16 @@ public class SlingshotController {
 	public static final int SCREEN_HEIGHT = 900;
 	public static final int BALL_RADIUS = 20;
 	public static final int TARGET_RADIUS = 40;
-	public static final int SLINGSHOT_X = 250;
-	public static final int SLINGSHOT_Y = 500;
-	public static final int MAX_HAND_DIST = 200;
+	public static final double SLINGSHOT_X = 250;
+	public static final double SLINGSHOT_Y = 500;
+	public static final double MAX_HAND_DIST = 200;
 	
 	public static final double MAX_HAND_V = 5;
 	public static final double BALL_ACCELERATION = 3;
 	public static final double GRAVITY = -1;
+	
+	public static final int BASE_TIME = 500;
+	public static final int TARGET_TIME = 250;
 	
 	boolean display;
 	SlingshotGUI gui;
@@ -32,30 +35,32 @@ public class SlingshotController {
 	public double ballY;
 	public double ballVX;
 	public double ballVY;
-	public double handX;
-	public double handY;
 	public double targetX;
 	public double targetY;
-	public double handVX;
-	public double handVY;
 	public BallState ballState;
 	
-	public boolean handGrabbing;
-	
+	private int totalTime;
 	private Random rand;
 	
-	public SlingshotController(){
+	public Slinger slinger;
+	
+	public SlingshotController(Slinger slinger){
 		rand = new Random();
-		handX = 400;
-		handY = 400;
 		placeTarget();
 		resetBall();
-		this.run(true);
+		
+		this.slinger = slinger;
+		//TODO: random starting positions?
+		slinger.x = (rand.nextDouble() * MAX_HAND_DIST * 2) - MAX_HAND_DIST + SLINGSHOT_X;
+		slinger.y = (rand.nextDouble() * MAX_HAND_DIST * 2) - MAX_HAND_DIST + SLINGSHOT_Y;
 	}
 	
 	private void placeTarget(){
-		targetX = rand.nextDouble() * SCREEN_WIDTH;
-		targetY = rand.nextDouble() * SCREEN_HEIGHT;
+		//targetX = rand.nextDouble() * SCREEN_WIDTH;
+		//targetY = rand.nextDouble() * SCREEN_HEIGHT;
+		
+		targetX = 1000;
+		targetY = 300;
 	}
 	
 	private void resetBall(){
@@ -72,9 +77,9 @@ public class SlingshotController {
 			gui = new SlingshotGUI(this);
 		}
 		
-		
+		totalTime = BASE_TIME;
 		//for(int i=0; i<ROUND_TIME && !killMade; i++)
-		while(gui!=null)
+		for(int timer=0; timer<totalTime; timer++)
 		{
 			tick();
 			if(display){
@@ -98,36 +103,58 @@ public class SlingshotController {
 	}
 	
 	public void tick(){
-		//TODO: handle state changes from the neural net
+		//Update the neural net
+		double distToBall = SimMath.euclideanDist(SLINGSHOT_X, SLINGSHOT_Y, slinger.x, slinger.y);
+		if(distToBall < slinger.closestToBall){
+			slinger.closestToBall = (int)distToBall;
+		}
+		double distToTarget = SimMath.euclideanDist(ballX, ballY, targetX, targetY);
+		if(ballState == BallState.AWAY && distToTarget < slinger.closestToTarget){
+			slinger.closestToTarget = (int)distToTarget;
+		}
+		slinger.angle = SimMath.angle(SLINGSHOT_X, SLINGSHOT_Y, targetX, targetY);
+		slinger.dist = SimMath.euclideanDist(SLINGSHOT_X, SLINGSHOT_Y, targetX, targetY);
+		slinger.update();
 		
 		//Move hand
-		handX += handVX;
-		handY -= handVY;
-		if(handX < SLINGSHOT_X - MAX_HAND_DIST){
-			handX = SLINGSHOT_X - MAX_HAND_DIST;
+		slinger.x += slinger.vx;
+		slinger.y -= slinger.vy;
+		if(slinger.x < SLINGSHOT_X - MAX_HAND_DIST){
+			slinger.x = SLINGSHOT_X - MAX_HAND_DIST;
 		}
-		if(handY < SLINGSHOT_Y - MAX_HAND_DIST){
-			handY = SLINGSHOT_Y - MAX_HAND_DIST;
+		if(slinger.y < SLINGSHOT_Y - MAX_HAND_DIST){
+			slinger.y = SLINGSHOT_Y - MAX_HAND_DIST;
 		}
-		if(handX > SLINGSHOT_X + MAX_HAND_DIST){
-			handX = SLINGSHOT_X + MAX_HAND_DIST;
+		if(slinger.x > SLINGSHOT_X + MAX_HAND_DIST){
+			slinger.x = SLINGSHOT_X + MAX_HAND_DIST;
 		}
-		if(handY > SLINGSHOT_Y + MAX_HAND_DIST){
-			handY = SLINGSHOT_Y + MAX_HAND_DIST;
+		if(slinger.y > SLINGSHOT_Y + MAX_HAND_DIST){
+			slinger.y = SLINGSHOT_Y + MAX_HAND_DIST;
 		}
 		
-		if(SimMath.euclideanDist(handX, handY, ballX, ballY) < BALL_RADIUS 
-				&& ballState == BallState.LOADED && handGrabbing){
+		if(SimMath.euclideanDist(slinger.x, slinger.y, ballX, ballY) < BALL_RADIUS 
+				&& ballState == BallState.LOADED && slinger.grabbing){
 			ballState = BallState.HELD;
-		} else if(ballState == BallState.HELD && !handGrabbing){
-			ballState = BallState.RELEASED;
+			slinger.hasBall = true;
+			slinger.grabbedBall = true;
+		} else if(ballState == BallState.HELD && !slinger.grabbing){
+			slinger.hasBall = false;
+			int pullDist = (int)SimMath.euclideanDist(SLINGSHOT_X, SLINGSHOT_Y, slinger.x, slinger.y);
+			if(pullDist > 40){
+				slinger.pullDist += pullDist;
+				ballState = BallState.RELEASED;
+			} else {
+				//if ball not pulled far enough, don't launch it
+				resetBall();
+			}
+			
 		}
 		
 		//Move ball
 		switch(ballState){
 		case HELD:
-			ballX = handX;
-			ballY = handY;
+			ballX = slinger.x;
+			ballY = slinger.y;
 			break;
 		case RELEASED:
 			ballX += ballVX;
@@ -147,6 +174,9 @@ public class SlingshotController {
 			if(SimMath.euclideanDist(ballX, ballY, targetX, targetY) < TARGET_RADIUS){
 				resetBall();
 				placeTarget();
+				slinger.targetsHit++;
+				slinger.closestToTarget = Slinger.FARTHEST_FROM_TARGET;
+				totalTime = BASE_TIME + ((int)Math.sqrt(slinger.targetsHit) * TARGET_TIME);
 			}
 			
 			//Respawn the ball if out of bounds
@@ -159,9 +189,5 @@ public class SlingshotController {
 		default:
 			break;
 		}
-		
-		//TODO: handle hitting targets
-		
-		
 	}
 }
