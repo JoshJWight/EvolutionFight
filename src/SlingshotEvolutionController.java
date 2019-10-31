@@ -12,7 +12,8 @@ public class SlingshotEvolutionController extends EvolutionController {
 
 	@Override
 	protected void runOne(Creature creature, boolean show) {
-		SlingshotController sim = new SlingshotController((Slinger)creature);
+		//all creatures within a generation get the same conditions even though they are randomized
+		SlingshotController sim = new SlingshotController((Slinger)creature, this.generation);
 		sim.run(show);
 		
 	}

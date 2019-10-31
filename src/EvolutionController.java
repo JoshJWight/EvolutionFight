@@ -105,7 +105,9 @@ public abstract class EvolutionController {
 			endOfGen();
 			
 			Creature best = completed.get(POP_SIZE - 1);
-			System.out.println("Best creature scored " + best.score());
+			System.out.println("Best creature scored " + best.score() + 
+					" using " + best.net.hiddenNodes.size() + " hidden nodes and " + 
+					best.net.connections.size() + " connections");
 			
 			neat.reproduce();
 			makeremaining();

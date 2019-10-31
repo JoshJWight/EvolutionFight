@@ -14,10 +14,10 @@ public class NeatNet implements Comparable<NeatNet> {
 	private static final double DISJOINT_MULTIPLIER = 1;
 	private static final double CONNECTION_MULTIPLIER = 0.4;
 	private static final double EXCESS_MULTIPLIER = 1;
-	private static final double ADD_CONNECTION_PROBABILITY = .02;
-	private static final double ADD_NODE_PROBABILITY = .005;
+	private static final double ADD_CONNECTION_PROBABILITY = .05;
+	private static final double ADD_NODE_PROBABILITY = .01;
 	private static final double CHANGE_PROBABILITY = .1;
-	private static final double DISABLE_PROBABILITY = .01;
+	private static final double DISABLE_PROBABILITY = .02;
 	private static final double MUTATION_STRENGTH = 0.5;
 	
 	public int inputs;
@@ -113,6 +113,10 @@ public class NeatNet implements Comparable<NeatNet> {
 		for(int i= inputs+outputs; i<nodes.size(); i++){
 			hiddenNodes.add(nodes.get(i));
 		}
+	}
+	
+	public NeatNet clone(){
+		return new NeatNet(this.spec());
 	}
 	
 	public String spec(){

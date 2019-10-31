@@ -27,6 +27,8 @@ public class SlingshotController {
 	public static final int BASE_TIME = 500;
 	public static final int TARGET_TIME = 250;
 	
+	public static final boolean RANDOM_TARGETS = true;
+	
 	boolean display;
 	SlingshotGUI gui;
 	
@@ -44,9 +46,11 @@ public class SlingshotController {
 	
 	public Slinger slinger;
 	
-	public SlingshotController(Slinger slinger){
-		rand = new Random();
-		placeTarget();
+	public SlingshotController(Slinger slinger, int seed){
+		rand = new Random(seed);
+		//start the target in a predictable place, then move it
+		targetX = 1000;
+		targetY = 300;
 		resetBall();
 		
 		this.slinger = slinger;
@@ -56,11 +60,15 @@ public class SlingshotController {
 	}
 	
 	private void placeTarget(){
-		//targetX = rand.nextDouble() * SCREEN_WIDTH;
-		//targetY = rand.nextDouble() * SCREEN_HEIGHT;
 		
-		targetX = 1000;
-		targetY = 300;
+		if(RANDOM_TARGETS){
+			//always on the right side of the screen
+			targetX = (rand.nextDouble() + 1) * (SCREEN_WIDTH/2);
+			targetY = rand.nextDouble() * SCREEN_HEIGHT;
+		} else {
+			targetX = 1000;
+			targetY = 300;
+		}		
 	}
 	
 	private void resetBall(){

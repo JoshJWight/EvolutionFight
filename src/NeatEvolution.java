@@ -122,10 +122,17 @@ public class NeatEvolution {
 			ArrayList<NeatNet> offspring = new ArrayList<NeatNet>();
 			int n = members.size();
 			int t = members.size()/2; //note this rounds down
+			//To cope with higher mutation rate, make the last 1/4 of the new population (rounding down) 
+			//clones of the highest performing individuals.
 			for(int i=0; i< members.size(); i++){
-				int i1 = rand.nextInt(n - t) + t;
-				int i2 = rand.nextInt(n - i1) + i1;
-				NeatNet newnet = members.get(i2).crossover(members.get(i1));
+				NeatNet newnet;
+				if(i> (members.size() * 3)/4){
+					newnet = members.get(i).clone();
+				} else{
+					int i1 = rand.nextInt(n - t) + t;
+					int i2 = rand.nextInt(n - i1) + i1;
+					newnet = members.get(i2).crossover(members.get(i1));
+				}
 				offspring.add(newnet);
 			}
 			return offspring;
